@@ -1,14 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ReposModule } from './repos/repos.module';
 import { EndpointsModule } from './endpoints/endpoints.module';
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module({
   imports: [
-    ReposModule, 
     EndpointsModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
@@ -25,6 +23,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
         database: ConfigService.get<string>('DATA_DB'), 
         username: ConfigService.get<string>('DATA_USER'),
         // password: ConfigService.get<string>('DATA_PASSWORD'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: false
       })
     })
   ],

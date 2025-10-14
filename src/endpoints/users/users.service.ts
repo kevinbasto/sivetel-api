@@ -1,11 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcrypt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/entities/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+
+  constructor(
+    @InjectRepository(User) private userRepo: Repository<User>
+  ) {}
+
+  async create(createUserDto: CreateUserDto) {
+    try {
+      const { password } = createUserDto;
+      const encryptedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+      createUserDto.password = encryptedPassword;
+      await this.userRepo.save(createUserDto)
+      .catch(error => { throw new InternalServerErrorException(error) });
+      return { message: "User created successfully" }
+    } catch (error) {
+      throw error;
+    }
   }
 
   findAll() {
