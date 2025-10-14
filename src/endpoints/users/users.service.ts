@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 export class UsersService {
 
   constructor(
-    @InjectRepository(User) private userRepo: Repository<User>
+    @InjectRepository(User) private usersRepo: Repository<User>
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -18,7 +18,7 @@ export class UsersService {
       const { password } = createUserDto;
       const encryptedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
       createUserDto.password = encryptedPassword;
-      await this.userRepo.save(createUserDto)
+      await this.usersRepo.save(createUserDto)
       .catch(error => { throw new InternalServerErrorException(error) });
       return { message: "User created successfully" }
     } catch (error) {
@@ -26,8 +26,14 @@ export class UsersService {
     }
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    try {
+      let users: Array<Partial<User>> = await this.usersRepo.find();
+      let sanitized = users.map(user => {delete user.password; return user});
+      return sanitized;
+    } catch (error) {
+      throw error;
+    }
   }
 
   findOne(id: number) {
