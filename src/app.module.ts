@@ -8,7 +8,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 @Module({
   imports: [
     EndpointsModule,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({isGlobal: true}),
     TypeOrmModule.forRootAsync({
       imports: [
         ConfigModule
@@ -22,9 +22,9 @@ import { TypeOrmModule } from "@nestjs/typeorm";
         port: ConfigService.get<number>('DATA_PORT'),
         database: ConfigService.get<string>('DATA_DB'), 
         username: ConfigService.get<string>('DATA_USER'),
-        // password: ConfigService.get<string>('DATA_PASSWORD'),
+        password: ConfigService.get<string>('DATA_PASSWORD'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false
+        synchronize: true
       })
     })
   ],
