@@ -5,8 +5,18 @@ import { ProductsService } from './products.service';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Get('')
+  @Get('recharges')
   getProducts(){
     return this.productsService.getProducts();
+  }
+
+  @Get('services')
+  getServices(){
+    return this.productsService.getServices();
+  }
+
+  @Get('pins')
+  getPins(){
+    return this.productsService.getPins();
   }
 }
