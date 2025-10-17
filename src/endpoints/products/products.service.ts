@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Pin } from 'src/entities/pin.entity';
 import { Product } from 'src/entities/product.entity';
+import { Provider } from 'src/entities/provider.entity';
 import { Service } from 'src/entities/service.entity';
 import { Repository } from 'typeorm';
 
@@ -12,6 +13,7 @@ export class ProductsService {
         @InjectRepository(Product) private productsRepo: Repository<Product>,
         @InjectRepository(Service) private serviceRepo: Repository<Service>,
         @InjectRepository(Pin) private pinRepo: Repository<Pin>,
+        @InjectRepository(Provider) private providerRepo : Repository<Provider>,
     ) {}
 
     getProducts() {
@@ -24,5 +26,12 @@ export class ProductsService {
 
     getPins() {
         return this.pinRepo.find();
+    }
+
+    getProviders(type?: "RECHARGES" | "SERVICES" | "PINS") {
+        if(type)
+            return this.providerRepo.find({ where: { type } });
+        else
+            return this.providerRepo.find();
     }
 }

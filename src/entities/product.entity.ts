@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Provider } from './provider.entity';
 
 @Entity('products')
 export class Product {
@@ -16,6 +17,10 @@ export class Product {
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
+
+  @ManyToOne(() => Provider, (provider) => provider.products, { eager: true }) // eager: true carga automáticamente
+  @JoinColumn({ name: 'provider_id' })
+  provider: Provider;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

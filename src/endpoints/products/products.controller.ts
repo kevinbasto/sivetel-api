@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 
 @Controller('products')
@@ -18,5 +18,10 @@ export class ProductsController {
   @Get('pins')
   getPins(){
     return this.productsService.getPins();
+  }
+
+  @Get('providers')
+  getProviders(@Query('type') type: "RECHARGES" | "SERVICES" | "PINS") {
+    return this.productsService.getProviders(type);
   }
 }
