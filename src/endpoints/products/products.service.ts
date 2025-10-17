@@ -15,21 +15,30 @@ export class ProductsService {
     constructor(
         @InjectRepository(Product) private productsRepo: Repository<Product>,
         @InjectRepository(Service) private serviceRepo: Repository<Service>,
-        @InjectRepository(Pin) private pinRepo: Repository<Pin>,
+        @InjectRepository(Pin) private pinsRepo: Repository<Pin>,
         @InjectRepository(Provider) private providerRepo : Repository<Provider>,
         @InjectRepository(ProviderImage) private providerImagesRepo: Repository<ProviderImage>,
     ) {}
 
-    getProducts() {
-        return this.productsRepo.find();
+    getProducts(providerId?: number) {
+        if(providerId)
+            return this.productsRepo.find({where: {provider: { id: providerId }}});
+        else
+            return this.productsRepo.find();
     }
 
-    getServices() {
-        return this.serviceRepo.find();
+    getServices(providerId: number) {
+        if(providerId)
+            return this.serviceRepo.find({where: {provider: { id: providerId }}});
+        else
+            return this.serviceRepo.find();
     }
 
-    getPins() {
-        return this.pinRepo.find();
+    getPins(providerId: number) {
+        if(providerId)
+            return this.pinsRepo.find({where: {provider: { id: providerId }}});
+        else
+            return this.pinsRepo.find();
     }
 
     getProviders(type?: "RECHARGES" | "SERVICES" | "PINS") {

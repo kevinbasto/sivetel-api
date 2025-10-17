@@ -6,18 +6,18 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get('recharges')
-  getProducts(){
-    return this.productsService.getProducts();
+  getProducts( @Query('providerId') providerId: string ){
+    return this.productsService.getProducts(+providerId);
   }
 
   @Get('services')
-  getServices(){
-    return this.productsService.getServices();
+  getServices( @Query('providerId') providerId: string ){
+    return this.productsService.getServices(+providerId);
   }
 
   @Get('pins')
-  getPins(){
-    return this.productsService.getPins();
+  getPins( @Query('providerId') providerId: string ){
+    return this.productsService.getPins(+providerId);
   }
 
   @Get('providers')
