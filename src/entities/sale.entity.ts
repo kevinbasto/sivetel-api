@@ -8,6 +8,9 @@ import { User } from "./user.entity";
 export class Sale {
     @PrimaryGeneratedColumn()
     id: number;
+    
+    @Column()
+    transactionId: string;
 
     @ManyToOne(() => User, { eager: false, nullable: false })
     @JoinColumn({ name: 'user_id' })
