@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Provider } from './provider.entity';
+import { Sale } from './sale.entity';
 
 @Entity('pins')
 export class Pin {
@@ -27,4 +28,7 @@ export class Pin {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @OneToMany(() => Sale, (sale) => sale.pin)
+  sales: Sale[];
 }

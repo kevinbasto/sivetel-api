@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Provider } from './provider.entity';
+import { Sale } from './sale.entity';
 
 @Entity('services')
 export class Service {
@@ -27,4 +28,7 @@ export class Service {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @OneToMany(() => Sale, (sale) => sale.service)
+  sales: Sale[];
 }

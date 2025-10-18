@@ -12,6 +12,18 @@ export class Sale {
     @Column()
     transactionId: string;
 
+    @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+    amount: number;
+
+    @Column({ type: 'varchar', length: 50 })
+    type: string; // recharge, pin, service
+
+    @CreateDateColumn({ type: 'timestamp' })
+    date: Date;
+
+    @Column({ type: 'varchar', length: 50, default: 'pending' })
+    status: string;  // pending, rejected, accepted
+
     @ManyToOne(() => User, { eager: false, nullable: false })
     @JoinColumn({ name: 'user_id' })
     user: User;
@@ -27,16 +39,4 @@ export class Sale {
     @ManyToOne(() => Pin, { eager: false, nullable: true })
     @JoinColumn({ name: 'pin_id' })
     pin: Pin;
-
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
-    amount: number;
-
-    @Column({ type: 'varchar', length: 50 })
-    type: string;
-
-    @CreateDateColumn({ type: 'timestamp' })
-    date: Date;
-
-    @Column({ type: 'varchar', length: 50, default: 'pending' })
-    status: string;
 }

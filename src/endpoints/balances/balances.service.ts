@@ -43,7 +43,6 @@ export class BalancesService {
                 },
                 body: params.toString(),
             });
-
             // Validar que la respuesta sea exitosa
             if (!response.ok) {
                 throw new HttpException(
