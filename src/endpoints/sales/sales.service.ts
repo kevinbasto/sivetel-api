@@ -46,18 +46,38 @@ export class SalesService {
       let product = (await this.productRepo.find({where: {id: productId}}))[0];
       if(!product)
         throw new UnauthorizedException("El producto no fue encontrado")
+      let headers = this.buildHeaders();
       let body = this.buildBasicBody();
       body.append('numero', phoneNumber),
       body.append('producto', product.code);
-      const response = await fetch(this.reservationEndpoint, {
+      let response = await fetch(this.reservationEndpoint, {
         method: 'POST',
+        headers,
         body: body.toString()
       });
       if(!response.ok)
         throw new InternalServerErrorException("Hubo un error al procesar la recarga");
-      const resbody = response.json();
-      
-      
+      let resbody = await response.json();
+      const { requestid } = resbody.data;
+      let sale = await this.saleRepo.save({ transactionId: requestid, user, product, date: new Date(), type: 'recharge', status: 'pending' });
+      body = this.buildBasicBody();
+      body.append('requestid', requestid);
+      response = await fetch(this.processEndpoint, {
+        method: 'POST',
+        headers,
+        body: body.toString()
+      });
+      resbody = await response.json()
+
+      if(resbody.status){
+        await this.saleRepo.update({id: sale.id}, {status: 'accepted'})
+        return { message: "recarga realizada" };
+      }
+      else{
+        await this.saleRepo.update({id: sale.id}, {status: 'rejected'})
+        return { message: "recarga fallida" };
+      }
+        
     } catch (error) {
       throw error;
     }
