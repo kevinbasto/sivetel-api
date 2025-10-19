@@ -13,10 +13,10 @@ import { Sale } from 'src/entities/sale.entity';
 
 @Injectable()
 export class SalesService {
-  
-  account : string;
-  username : string;
-  password : string;
+
+  account: string;
+  username: string;
+  password: string;
 
   endpoint;
   reservationEndpoint = "reservarTransaccion";
@@ -40,22 +40,22 @@ export class SalesService {
 
   async makeRechargePayment({ userId, productId, phoneNumber }: RechargeSaleDTO) {
     try {
-      let user = (await this.userRepo.find({where: {id: userId}}))[0];
-      if(!user)
+      let user = (await this.userRepo.find({ where: { id: userId } }))[0];
+      if (!user)
         throw new UnauthorizedException("El usuario no fue encontrado");
-      let product = (await this.productRepo.find({where: {id: productId}}))[0];
-      if(!product)
+      let product = (await this.productRepo.find({ where: { id: productId } }))[0];
+      if (!product)
         throw new UnauthorizedException("El producto no fue encontrado")
       let headers = this.buildHeaders();
       let body = this.buildBasicBody();
       body.append('numero', phoneNumber),
-      body.append('producto', product.code);
+        body.append('producto', product.code);
       let response = await fetch(this.reservationEndpoint, {
         method: 'POST',
         headers,
         body: body.toString()
       });
-      if(!response.ok)
+      if (!response.ok)
         throw new InternalServerErrorException("Hubo un error al procesar la recarga");
       let resbody = await response.json();
       const { requestid } = resbody.data;
@@ -68,32 +68,106 @@ export class SalesService {
         body: body.toString()
       });
       resbody = await response.json()
-
-      if(resbody.status){
-        await this.saleRepo.update({id: sale.id}, {status: 'accepted'})
+      const { monto } = resbody.data;
+      if (resbody.status) {
+        await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto });
         return { message: "recarga realizada" };
       }
-      else{
-        await this.saleRepo.update({id: sale.id}, {status: 'rejected'})
+      else {
+        await this.saleRepo.update({ id: sale.id }, { status: 'rejected' })
         return { message: "recarga fallida" };
       }
-        
+
     } catch (error) {
       throw error;
     }
   }
 
-  makeServicePayment(serviceSale: ServiceSaleDTO) {
+  async makeServicePayment(serviceSale: ServiceSaleDTO) {
     try {
-      
+      let user = (await this.userRepo.find({ where: { id: serviceSale.userId } }))[0];
+      let service = (await this.serviceRepo.find({ where: { id: serviceSale.serviceId } }))[0];
+      if (!user || !service)
+        throw new BadRequestException("Hubo un error con alguno de tus datos, revisalo y reintenta mas tarde");
+      let headers = this.buildHeaders();
+      let body = this.buildBasicBody();
+      let { reference, amount } = serviceSale;
+      body.append('referencia', reference);
+      body.append('monto', amount.toString());
+      body.append('producto', service.code);
+      let response = await fetch(this.reservationEndpoint, {
+        method: 'POST',
+        headers,
+        body: body.toString()
+      });
+      if (!response.ok)
+        throw new InternalServerErrorException("Hubo un error al procesar la recarga");
+      let resbody = await response.json();
+      const { requestid } = resbody.data;
+      let sale = await this.saleRepo.save({ transactionId: requestid, user, service, date: new Date(), type: 'service', status: 'pending' });
+      body = this.buildBasicBody();
+      body.append('requestid', requestid);
+      response = await fetch(this.processEndpoint, {
+        method: 'POST',
+        headers,
+        body: body.toString()
+      });
+      resbody = await response.json()
+      const { monto, cargo } = resbody.data;
+      if (resbody.status) {
+        await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto, charge: cargo });
+        return { message: "Pago de servicio realizada" };
+      }
+      else {
+        await this.saleRepo.update({ id: sale.id }, { status: 'rejected' })
+        return { message: "Pago de servicio fallido" };
+      }
     } catch (error) {
       throw error;
     }
   }
 
-  async makePinPayment(rechargeSale: RechargeSaleDTO) {
+  async makePinPayment({phoneNumber, productId, userId}: RechargeSaleDTO) {
     try {
-      
+      let user = (await this.userRepo.find({ where: { id: userId } }))[0];
+      if (!user)
+        throw new UnauthorizedException("El usuario no fue encontrado");
+      let pin = (await this.pinRepo.find({ where: { id: productId } }))[0];
+      if (!pin)
+        throw new UnauthorizedException("El producto no fue encontrado")
+      let headers = this.buildHeaders();
+      let body = this.buildBasicBody();
+      body.append('numero', phoneNumber),
+        body.append('producto', pin.code);
+      let response = await fetch(this.reservationEndpoint, {
+        method: 'POST',
+        headers,
+        body: body.toString()
+      });
+      if (!response.ok)
+        throw new InternalServerErrorException("Hubo un error al procesar la recarga");
+      let resbody = await response.json();
+      console.log(resbody);
+      const { requestid } = resbody.data;
+      let sale = await this.saleRepo.save({ transactionId: requestid, user, pin: pin, date: new Date(), type: 'pin', status: 'pending' });
+      body = this.buildBasicBody();
+      body.append('requestid', requestid);
+      response = await fetch(this.processEndpoint, {
+        method: 'POST',
+        headers,
+        body: body.toString()
+      });
+      resbody = await response.json()
+      const { monto } = resbody.data;
+      if (resbody.status) {
+        await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto });
+        return { message: "pin vendido" };
+      }
+      else {
+        await this.saleRepo.update({ id: sale.id }, { status: 'rejected' })
+        return { message: "no se pudo despachar el pin" };
+      }
+
     } catch (error) {
       throw error;
     }
@@ -112,5 +186,5 @@ export class SalesService {
     headers.append('Content-type', 'application/x-www-form-urlencoded');
     return headers;
   }
-  
+
 }
