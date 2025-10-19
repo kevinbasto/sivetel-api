@@ -18,6 +18,15 @@ export class Sale {
     @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
     charge: number;
 
+    @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+    bonus: number;
+
+    @Column({nullable: true})
+    phone: string;
+
+    @Column({nullable: true})
+    reference: string;
+
     @Column({ type: 'varchar', length: 50 })
     type: string; // recharge, pin, service
 

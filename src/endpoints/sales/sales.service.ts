@@ -68,9 +68,9 @@ export class SalesService {
         body: body.toString()
       });
       resbody = await response.json()
-      const { monto } = resbody.data;
+      const { monto, referencia } = resbody.data;
       if (resbody.status) {
-        await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto });
+        await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto, phone: referencia });
         return { message: "recarga realizada" };
       }
       else {
@@ -113,9 +113,9 @@ export class SalesService {
         body: body.toString()
       });
       resbody = await response.json()
-      const { monto, cargo } = resbody.data;
+      const { monto, cargo, referencia } = resbody.data;
       if (resbody.status) {
-        await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto, charge: cargo });
+        await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto, charge: cargo, reference: referencia });
         return { message: "Pago de servicio realizada" };
       }
       else {
@@ -158,9 +158,9 @@ export class SalesService {
         body: body.toString()
       });
       resbody = await response.json()
-      const { monto } = resbody.data;
+      const { monto, abono, referencia } = resbody.data;
       if (resbody.status) {
-        await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto });
+        await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto, bonus: abono, phone: referencia });
         return { message: "pin vendido" };
       }
       else {
