@@ -21,7 +21,6 @@ export class BranchesService {
 
   async findAll(status: string = 'ACTIVE'): Promise<Partial<Branch>[]> {
     let condition = status == 'ACTIVE' ? { inactive: false } : status == 'ALL' ? {} : { inactive: true }
-    console.log(condition);
     const branches = await this.branchRepository.find({ where: condition });
     return branches.map(({  ...rest }) => rest);
   }

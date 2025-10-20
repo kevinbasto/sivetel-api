@@ -70,7 +70,6 @@ export class BalancesService {
             return balance;
 
         } catch (error) {
-            console.log(error);
             // Re-lanzar excepciones HTTP de NestJS
             if (error instanceof HttpException) {
                 throw error;

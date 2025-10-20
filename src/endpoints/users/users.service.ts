@@ -36,7 +36,10 @@ export class UsersService {
 
   async findOne(id: number) {
     try {
-      const user: Partial<User> | null = await this.usersRepo.findOne({ where: { id } });
+      const user: Partial<User> | null = await this.usersRepo.findOne({ 
+        where: { id },
+        relations: ['branch']
+      });
       if (!user) throw new NotFoundException(`User with id ${id} not found`);
       delete user.password;
       return user;
@@ -68,7 +71,6 @@ export class UsersService {
 
   async remove(id: number) {
     try {
-      console.log(id);
       // Restricción: usuario con id 1 es indeleble
       if (id == 1) {
         throw new Error(`El usuario con id 1 no puede ser inactivado`);

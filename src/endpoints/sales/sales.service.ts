@@ -147,7 +147,6 @@ export class SalesService {
       if (!response.ok)
         throw new InternalServerErrorException("Hubo un error al procesar la recarga");
       let resbody = await response.json();
-      console.log(resbody);
       const { requestid } = resbody.data;
       let sale = await this.saleRepo.save({ transactionId: requestid, user, pin: pin, date: new Date(), type: 'pin', status: 'pending' });
       body = this.buildBasicBody();
