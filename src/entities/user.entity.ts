@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn } from "typeorm";
 import { Sale } from "./sale.entity";
+import { Branch } from "./branch.entity";
 
 @Entity({ name: 'users' })
 export class User {
@@ -30,4 +31,7 @@ export class User {
     @OneToMany(() => Sale, (sale) => sale.user)
     sales: Sale[]
 
+    @ManyToOne(() => Branch, (branch) => branch.users)
+    @JoinColumn({name: 'branch_id'})
+    branch: Branch;
 }
