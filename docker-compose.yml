@@ -22,7 +22,7 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306   # <-- usar puerto interno del contenedor MySQL
-      PMA_ABSOLUTE_URI: "http://tuservidor.com/phpmyadmin/"
+      PMA_ABSOLUTE_URI: "https://diazysolis.com/phpmyadmin/"
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "8080:80"
