@@ -15,7 +15,7 @@ export class Branch {
     createdAt: Date;
     @Column()
     updatedAt: Date;
-    @Column()
+    @Column({ default: false })
     inactive: boolean;
     @OneToMany(() => User, (user) => user.branch)
     users: User[];
