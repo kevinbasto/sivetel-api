@@ -21,7 +21,7 @@ services:
       - db
     environment:
       PMA_HOST: db
-      PMA_PORT: 3306
+      PMA_PORT: 3400
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "8080:80"
