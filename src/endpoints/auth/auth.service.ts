@@ -41,7 +41,8 @@ export class AuthService {
     return {
       session: token,
       name: user.name,
-      isAdmin: user.isAdmin
+      isAdmin: user.isAdmin,
+      expiresIn: '1h'
     };
   }
 }

@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { BalancesService } from './balances.service';
 import { BalancesController } from './balances.controller';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, AuthModule],
   controllers: [BalancesController],
   providers: [BalancesService],
 })

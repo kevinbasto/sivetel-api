@@ -8,11 +8,13 @@ import { Product } from 'src/entities/product.entity';
 import { Service } from 'src/entities/service.entity';
 import { Pin } from 'src/entities/pin.entity';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([Sale, User, Product, Service, Pin])
+    TypeOrmModule.forFeature([Sale, User, Product, Service, Pin]),
+    AuthModule
   ], 
   controllers: [SalesController],
   providers: [SalesService],

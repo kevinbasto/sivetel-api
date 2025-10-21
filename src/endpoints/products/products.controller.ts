@@ -1,25 +1,31 @@
-import { Controller, Get, Param, Query, Res } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
+import { AuthGuard } from 'src/guards/auth/auth.guard';
+
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @UseGuards(AuthGuard)
   @Get('recharges')
   getProducts( @Query('providerId') providerId: string ){
     return this.productsService.getProducts(+providerId);
   }
 
+  @UseGuards(AuthGuard)
   @Get('services')
   getServices( @Query('providerId') providerId: string ){
     return this.productsService.getServices(+providerId);
   }
 
+  @UseGuards(AuthGuard)
   @Get('pins')
   getPins( @Query('providerId') providerId: string ){
     return this.productsService.getPins(+providerId);
   }
 
+  @UseGuards(AuthGuard)
   @Get('providers')
   getProviders(@Query('type') type: "RECHARGES" | "SERVICES" | "PINS") {
     return this.productsService.getProviders(type);
