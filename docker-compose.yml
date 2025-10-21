@@ -9,7 +9,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: sivetel
     ports:
-      - "3400:3306"
+      - "3400:3306" # Solo para acceso externo opcional
     volumes:
       - db_data:/var/lib/mysql
 
@@ -21,7 +21,8 @@ services:
       - db
     environment:
       PMA_HOST: db
-      PMA_PORT: 3400
+      PMA_PORT: 3306   # <-- usar puerto interno del contenedor MySQL
+      PMA_ABSOLUTE_URI: "http://tuservidor.com/phpmyadmin/"
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "8080:80"
