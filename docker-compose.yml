@@ -1,9 +1,8 @@
 services:
   db:
-    image: mysql:latest
+    image: mysql:8.0
     container_name: sivetel_db
     restart: always
-    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: sivetel
@@ -11,6 +10,7 @@ services:
       - "3400:3306"
     volumes:
       - db_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
       
   phpmyadmin:
     image: phpmyadmin:latest
