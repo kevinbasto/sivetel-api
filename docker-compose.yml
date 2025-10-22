@@ -3,14 +3,15 @@ services:
     image: mysql:latest
     container_name: sivetel_db
     restart: always
+    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: sivetel
     ports:
-      - "3400:3306" # Solo para acceso externo opcional
+      - "3400:3306"
     volumes:
       - db_data:/var/lib/mysql
-
+      
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: sivetel_front
@@ -19,11 +20,11 @@ services:
       - db
     environment:
       PMA_HOST: db
-      PMA_PORT: 3306   # <-- usar puerto interno del contenedor MySQL
+      PMA_PORT: 3306
       PMA_ABSOLUTE_URI: "https://diazysolis.com/phpmyadmin/"
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "8080:80"
-
+      
 volumes:
   db_data:
