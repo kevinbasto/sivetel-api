@@ -1,30 +1,41 @@
+version: '3.9'
+
 services:
-  db:
-    image: mysql:8.0
-    container_name: sivetel_db
+  api:
+    build: .
+    container_name: sivetel_api
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: sivetel
+    env_file: .env.production
     ports:
-      - "3400:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password
-      
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: sivetel_front
-    restart: always
+      - "3000:3000"
     depends_on:
-      - db
+      - mariadb
+    networks:
+      - backend
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: mariadb
+    restart: always
     environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      PMA_ABSOLUTE_URI: "https://diazysolis.com/phpmyadmin/"
-      MYSQL_ROOT_PASSWORD: root
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=sivetel
+    volumes:
+      - ./db:/var/lib/mysql
+    networks:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
     ports:
       - "8080:80"
-      
-volumes:
-  db_data:
+    environment:
+      - PMA_HOST=mariadb
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
