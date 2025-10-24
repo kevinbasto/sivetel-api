@@ -20,8 +20,6 @@ export class AuthGuard implements CanActivate {
     // Obtener los headers
     const authHeader = request.headers['authorization'];
     
-    console.log('Headers completos:', request.headers);
-    console.log('Authorization header:', authHeader);
     
     // Validar que existe el header de autorización
     if (!authHeader) {
@@ -35,12 +33,12 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid authorization header format');
     }
     
-    console.log('Token extraído:', token);
+    
     
     try {
       // Verificar el token
       const payload = this.jwt.verify(token);
-      console.log('Payload del token:', payload);
+    
       
       // Adjuntar el payload al request para usarlo en los controllers
       request['user'] = payload;
