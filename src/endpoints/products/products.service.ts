@@ -61,6 +61,7 @@ export class ProductsService {
         // Construir la ruta absoluta al archivo usando el campo 'name'
         // Asumiendo que 'name' contiene el nombre del archivo (ej: "telcel.png")
         const assetsPath = path.join(process.cwd(), 'dist', providerImage.name);
+        console.log('Asset Path:', assetsPath);
 
         // Verificar que el archivo existe
         if (!fs.existsSync(assetsPath)) {
