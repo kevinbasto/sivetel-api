@@ -9,6 +9,7 @@ import { Service } from 'src/entities/service.entity';
 import { Pin } from 'src/entities/pin.entity';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from '../auth/auth.module';
+import { EmailService } from './email/email.service';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { AuthModule } from '../auth/auth.module';
     AuthModule
   ], 
   controllers: [SalesController],
-  providers: [SalesService],
+  providers: [SalesService, EmailService],
 })
 export class SalesModule {}

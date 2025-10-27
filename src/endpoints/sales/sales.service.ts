@@ -10,6 +10,7 @@ import { Product } from 'src/entities/product.entity';
 import { Service } from 'src/entities/service.entity';
 import { Pin } from 'src/entities/pin.entity';
 import { Sale } from 'src/entities/sale.entity';
+import { EmailService } from './email/email.service';
 
 @Injectable()
 export class SalesService {
@@ -29,6 +30,7 @@ export class SalesService {
     @InjectRepository(Service) private serviceRepo: Repository<Service>,
     @InjectRepository(Pin) private pinRepo: Repository<Pin>,
     @InjectRepository(Sale) private saleRepo: Repository<Sale>,
+    private emailService: EmailService, // 👈 Inyectar EmailService
   ) {
     this.account = this.configService.get<string>('SIVETEL_NUMBER')!;
     this.username = this.configService.get<string>('SIVETEL_USUARIO')!;
@@ -69,12 +71,39 @@ export class SalesService {
       });
       resbody = await response.json()
       const { monto, referencia } = resbody.data;
+      
       if (resbody.status) {
         await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto, phone: referencia });
+        
+        // 📧 Enviar notificación de venta exitosa
+        await this.emailService.sendSaleNotification({
+          type: 'recharge',
+          userName: user.name,
+          productName: product.name,
+          amount: parseFloat(monto),
+          reference: referencia,
+          phone: phoneNumber,
+          date: sale.date,
+          status: 'accepted'
+        });
+        
         return { message: "recarga realizada" };
       }
       else {
         await this.saleRepo.update({ id: sale.id }, { status: 'rejected' })
+        
+        // 📧 Enviar notificación de venta fallida
+        await this.emailService.sendSaleNotification({
+          type: 'recharge',
+          userName: user.name,
+          productName: product.name,
+          amount: 0,
+          reference: requestid,
+          phone: phoneNumber,
+          date: sale.date,
+          status: 'rejected'
+        });
+        
         return { message: "recarga fallida" };
       }
 
@@ -114,12 +143,38 @@ export class SalesService {
       });
       resbody = await response.json()
       const { monto, cargo, referencia } = resbody.data;
+      
       if (resbody.status) {
         await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto, charge: cargo, reference: referencia });
+        
+        // 📧 Enviar notificación de pago de servicio exitoso
+        await this.emailService.sendSaleNotification({
+          type: 'service',
+          userName: user.name,
+          productName: service.name,
+          amount: parseFloat(monto),
+          charge: parseFloat(cargo),
+          reference: referencia,
+          date: sale.date,
+          status: 'accepted'
+        });
+        
         return { message: "Pago de servicio realizada" };
       }
       else {
         await this.saleRepo.update({ id: sale.id }, { status: 'rejected' })
+        
+        // 📧 Enviar notificación de pago fallido
+        await this.emailService.sendSaleNotification({
+          type: 'service',
+          userName: user.name,
+          productName: service.name,
+          amount: parseFloat(amount.toString()),
+          reference: reference,
+          date: sale.date,
+          status: 'rejected'
+        });
+        
         return { message: "Pago de servicio fallido" };
       }
     } catch (error) {
@@ -158,12 +213,40 @@ export class SalesService {
       });
       resbody = await response.json()
       const { monto, abono, referencia } = resbody.data;
+      
       if (resbody.status) {
         await this.saleRepo.update({ id: sale.id }, { status: 'accepted', amount: monto, bonus: abono, phone: referencia });
+        
+        // 📧 Enviar notificación de venta de PIN exitosa
+        await this.emailService.sendSaleNotification({
+          type: 'pin',
+          userName: user.name,
+          productName: pin.name,
+          amount: parseFloat(monto),
+          bonus: parseFloat(abono),
+          reference: referencia,
+          phone: phoneNumber,
+          date: sale.date,
+          status: 'accepted'
+        });
+        
         return { message: "pin vendido" };
       }
       else {
         await this.saleRepo.update({ id: sale.id }, { status: 'rejected' })
+        
+        // 📧 Enviar notificación de venta fallida
+        await this.emailService.sendSaleNotification({
+          type: 'pin',
+          userName: user.name,
+          productName: pin.name,
+          amount: 0,
+          reference: requestid,
+          phone: phoneNumber,
+          date: sale.date,
+          status: 'rejected'
+        });
+        
         return { message: "no se pudo despachar el pin" };
       }
 
