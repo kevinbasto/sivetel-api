@@ -56,6 +56,7 @@ export class AuthService {
     return {
       session: token,
       refreshToken: refresh,
+      id: user.id,
       name: user.name,
       isAdmin: user.isAdmin,
       expiresIn: '1h',

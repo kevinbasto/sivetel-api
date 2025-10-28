@@ -23,18 +23,78 @@ export class EmailService {
   private notifyEmail: string;
 
   constructor(private configService: ConfigService) {
-    this.notifyEmail = this.configService.get<string>('NOTIFY_EMAIL')!;
+    // Usar EMAIL_FROM como destinatario de notificaciones
+    this.notifyEmail = this.configService.get<string>('EMAIL_FROM')!;
+    
+    const emailProvider = this.configService.get<string>('EMAIL_PROVIDER');
+    const emailUser = this.configService.get<string>('EMAIL_USER');
+    const emailPass = this.configService.get<string>('EMAIL_APP_PASSWORD');
+
+    // Determinar configuración SMTP según el proveedor
+    let smtpHost: string;
+    let smtpPort: number;
+    
+    switch (emailProvider?.toLowerCase()) {
+      case 'gmail':
+        smtpHost = 'smtp.gmail.com';
+        smtpPort = 587;
+        break;
+      case 'outlook':
+      case 'hotmail':
+        smtpHost = 'smtp-mail.outlook.com';
+        smtpPort = 587;
+        break;
+      case 'yahoo':
+        smtpHost = 'smtp.mail.yahoo.com';
+        smtpPort = 587;
+        break;
+      default:
+        smtpHost = 'smtp.gmail.com'; // default
+        smtpPort = 587;
+    }
+
+    // Validar que existan las variables
+    if (!emailUser || !emailPass) {
+      console.error('⚠️ Variables de email no configuradas correctamente');
+      console.error(`EMAIL_USER: ${emailUser || 'NO DEFINIDO'}`);
+      console.error(`EMAIL_APP_PASSWORD: ${emailPass ? '***' : 'NO DEFINIDO'}`);
+      console.error(`EMAIL_PROVIDER: ${emailProvider || 'NO DEFINIDO'}`);
+      
+      // Crear transportador fake que solo logea
+      this.transporter = nodemailer.createTransport({
+        streamTransport: true,
+        newline: 'unix',
+      });
+      return;
+    }
+    
+    console.log(`📧 Configurando email con ${emailProvider} (${smtpHost}:${smtpPort})`);
     
     // Configurar el transportador de nodemailer
     this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('SMTP_HOST'),
-      port: this.configService.get<number>('SMTP_PORT'),
-      secure: false, // true para 465, false para otros puertos
+      host: smtpHost,
+      port: smtpPort,
+      secure: false, // true para 465, false para 587
       auth: {
-        user: this.configService.get<string>('SMTP_USER'),
-        pass: this.configService.get<string>('SMTP_PASS'),
+        user: emailUser,
+        pass: emailPass,
       },
+      // Configuración adicional para debugging
+      debug: process.env.NODE_ENV !== 'production',
+      logger: process.env.NODE_ENV !== 'production',
     });
+    
+    // Verificar conexión al iniciar
+    this.verifyConnection();
+  }
+
+  private async verifyConnection() {
+    try {
+      await this.transporter.verify();
+      console.log('✅ Servidor SMTP conectado correctamente');
+    } catch (error) {
+      console.error('❌ Error al conectar con servidor SMTP:', error.message);
+    }
   }
 
   async sendSaleNotification(saleData: SaleEmailData): Promise<void> {
